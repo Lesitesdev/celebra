@@ -1,12 +1,12 @@
 "use client";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter,useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { templates } from "@/lib/data";
 import { saveEvent } from "@/lib/storage";
 import type { EventKind,InvitationEvent } from "@/lib/types";
 const kinds:EventKind[]=["Casamento","Aniversário","Formatura","Chá de bebê","Bodas","Outro evento"];
-export default function NewEventPage(){
+function NewEventForm(){
  const router=useRouter(); const params=useSearchParams();
  const [step,setStep]=useState(1); const [kind,setKind]=useState<EventKind>("Casamento");
  const [title,setTitle]=useState(""); const [hosts,setHosts]=useState(""); const [date,setDate]=useState(""); const [time,setTime]=useState("16:00"); const [message,setMessage]=useState("Será uma alegria celebrar este momento especial com você."); const [venue,setVenue]=useState(""); const [address,setAddress]=useState(""); const [city,setCity]=useState(""); const [state,setState]=useState("SP"); const [mapsUrl,setMapsUrl]=useState(""); const [templateId,setTemplateId]=useState(params.get("modelo")||"botanical"); const [error,setError]=useState("");
@@ -27,4 +27,8 @@ export default function NewEventPage(){
    <div style={{display:"flex",justifyContent:"space-between",gap:12,marginTop:25,flexWrap:"wrap"}}>{step>1?<button className="btn btn-light" onClick={()=>{setError("");setStep(step-1)}}>← Voltar</button>:<span/>}{step<4?<button className="btn btn-primary" onClick={()=>{if(step===2&&(!title.trim()||!hosts.trim()||!date)){setError("Preencha os campos obrigatórios marcados com *.");return;}setError("");setStep(step+1)}}>Continuar →</button>:<button className="btn btn-primary" onClick={()=>create("Rascunho")}>Criar evento e personalizar →</button>}</div>
   </section>
  </div>;
+}
+
+export default function NewEventPage(){
+ return <Suspense fallback={<div className="card" style={{padding:24}}>Carregando formul?rio...</div>}><NewEventForm /></Suspense>;
 }

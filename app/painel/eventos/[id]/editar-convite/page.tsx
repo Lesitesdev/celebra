@@ -10,9 +10,9 @@ export default function EditorPage(){
  useEffect(()=>setEvent(getEvent(params.id)),[params.id]);
  if(!event)return <div className="card" style={{padding:25}}>Evento não encontrado. <Link href="/painel/eventos">Voltar</Link></div>;
  const change=(key:keyof InvitationEvent,value:string)=>setEvent({...event,[key]:value});
- function save(){saveEvent(event);setMessage("Alterações salvas neste navegador.");setTimeout(()=>setMessage(""),2500);}
+ function save(){if(!event)return;saveEvent(event);setMessage("Alterações salvas neste navegador.");setTimeout(()=>setMessage(""),2500);}
  const model=templates.find(t=>t.id===event.templateId)||templates[0];
- function publish(){const updated={...event,status:event.status==="Publicado"?"Rascunho":"Publicado"} as InvitationEvent;setEvent(updated);saveEvent(updated);setMessage(updated.status==="Publicado"?"Convite publicado na demonstração!":"Convite voltou para rascunho.");}
+ function publish(){if(!event)return;const updated={...event,status:event.status==="Publicado"?"Rascunho":"Publicado"} as InvitationEvent;setEvent(updated);saveEvent(updated);setMessage(updated.status==="Publicado"?"Convite publicado na demonstração!":"Convite voltou para rascunho.");}
  return <><div style={{display:"flex",justifyContent:"space-between",gap:12,flexWrap:"wrap",alignItems:"center"}}><div><Link href={`/painel/eventos/${event.id}`} style={{fontSize:13,color:"#647d68"}}>← Voltar ao evento</Link><h1 className="serif" style={{fontSize:34,margin:"8px 0"}}>Editor de convite</h1></div><div style={{display:"flex",gap:8,flexWrap:"wrap"}}><button className="btn btn-light" onClick={save}>Salvar</button><Link className="btn btn-light" href={`/convite/${event.slug}`}>Visualizar</Link><button className="btn btn-primary" onClick={publish}>{event.status==="Publicado"?"Despublicar":"Publicar convite"}</button></div></div>
   {message&&<div className="notice" style={{margin:"14px 0"}}>{message}</div>}
   <div className="editor-layout" style={{marginTop:18}}><section className="card" style={{padding:22}}><div className="eyebrow">Personalização</div><p className="muted" style={{fontSize:12,lineHeight:1.5}}>A prévia é atualizada enquanto você edita.</p>
