@@ -689,3 +689,9 @@ td { font-size:14px; }
 .manual-gift[open] summary::after { transform:translateY(-40%) rotate(180deg); }
 .manual-gift>p { line-height:1.5; }
 @media(max-width:600px) { .manual-gift summary { min-height:64px; padding:12px 43px 12px 13px; font-size:15px; }.manual-gift summary::before { width:36px; height:36px; }.manual-gift[open] { padding:0 12px 13px; }.manual-gift[open] summary { margin-right:-12px; margin-left:-12px; } }
+.gift-manager-below { margin:24px 0 0; padding:24px; border:1px solid #eadfe7; border-radius:18px; background:#fffdfb; box-shadow:0 8px 24px #49313a0b; }
+.gift-manager-below.gift-manager { border-top:1px solid #eadfe7; padding-top:24px; }
+.gift-manager-below>h3 { font-size:24px; }
+.gift-manager-below .gift-help { max-width:760px; font-size:15px; }
+.gift-manager-below .gift-suggestion-list { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+@media(max-width:700px) { .gift-manager-below { padding:17px; }.gift-manager-below .gift-suggestion-list { grid-template-columns:minmax(0,1fr); } }
