@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import type { InvitationEvent, InviteDesignElement } from "@/lib/types";
 import { getDesignElementText } from "@/lib/invitation-design";
 
@@ -22,6 +22,7 @@ export default function InvitationDesignCanvas({ event, editable = false, onChan
   const [imageError, setImageError] = useState("");
   const stageRef = useRef<HTMLDivElement>(null);
   const dragging = useRef<string | null>(null);
+  const resizing = useRef<{ id: string; x: number; y: number; width: number; fontSize: number; startHeight: number; stageWidth: number } | null>(null);
   const selected = elements.find(element => element.id === selectedId);
 
   useEffect(() => {
@@ -85,7 +86,7 @@ export default function InvitationDesignCanvas({ event, editable = false, onChan
     }
   }
 
-  function startDrag(element: InviteDesignElement, e: PointerEvent<HTMLDivElement>) {
+  function startDrag(element: InviteDesignElement, e: ReactPointerEvent<HTMLDivElement>) {
     if (!editable) return;
     e.preventDefault();
     e.stopPropagation();
@@ -94,7 +95,37 @@ export default function InvitationDesignCanvas({ event, editable = false, onChan
     e.currentTarget.setPointerCapture(e.pointerId);
   }
 
-  function drag(e: PointerEvent<HTMLDivElement>) {
+  function startResize(element: InviteDesignElement, e: ReactPointerEvent<HTMLButtonElement>) {
+    if (!editable) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const stage = stageRef.current?.getBoundingClientRect();
+    const box = e.currentTarget.parentElement?.getBoundingClientRect();
+    if (!stage || !box) return;
+    setSelectedId(element.id);
+    dragging.current = null;
+    resizing.current = {
+      id: element.id, x: e.clientX, y: e.clientY, width: element.width,
+      fontSize: element.fontSize || 24,
+      startHeight: element.height || box.height, stageWidth: stage.width
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function drag(e: ReactPointerEvent<HTMLDivElement>) {
+    const resize = resizing.current;
+    if (resize) {
+      const deltaX = e.clientX - resize.x;
+      const deltaY = e.clientY - resize.y;
+      const element = elements.find(item => item.id === resize.id);
+      const patch: Partial<InviteDesignElement> = {
+        width: Math.max(10, Math.min(95, resize.width + deltaX / resize.stageWidth * 100)),
+        height: Math.max(36, Math.min(520, resize.startHeight + deltaY))
+      };
+      if (element?.type === "text") patch.fontSize = Math.max(10, Math.min(96, resize.fontSize + (deltaX + deltaY) / 20));
+      update(resize.id, patch);
+      return;
+    }
     const id = dragging.current;
     const rect = stageRef.current?.getBoundingClientRect();
     if (!id || !rect) return;
@@ -124,9 +155,10 @@ export default function InvitationDesignCanvas({ event, editable = false, onChan
         {selected.type === "text" ? <>
           <label className="design-field design-field-full">Texto<textarea rows={3} value={getDesignElementText(selected, event)} onChange={e => update(selected.id, { text: e.target.value, sourceField: undefined })}/></label>
           <div className="design-field-row"><label className="design-field">Fonte<select value={selected.fontFamily || "Georgia"} onChange={e => update(selected.id, { fontFamily: e.target.value })}>{fontChoices.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label className="design-field">Alinhamento<select value={selected.align || "center"} onChange={e => update(selected.id, { align: e.target.value as InviteDesignElement["align"] })}><option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option></select></label></div>
-          <label className="design-field design-range">Tamanho da letra <strong>{selected.fontSize || 24}px</strong><input type="range" min="10" max="72" value={selected.fontSize || 24} onChange={e => update(selected.id, { fontSize: Number(e.target.value) })}/></label>
+          <label className="design-field design-range">Tamanho da letra <strong>{selected.fontSize || 24}px</strong><input type="range" min="10" max="96" value={selected.fontSize || 24} onChange={e => update(selected.id, { fontSize: Number(e.target.value) })}/></label>
         </> : <label className="design-field design-field-full">Trocar imagem<input type="file" accept="image/*" onChange={e => { const file = e.target.files?.[0]; if (file) void readImage(file).then(image => update(selected.id, { image })).catch(error => setImageError(error instanceof Error ? error.message : "Não foi possível carregar essa imagem.")); e.currentTarget.value = ""; }}/></label>}
         <label className="design-field design-range">Largura do elemento <strong>{Math.round(selected.width)}%</strong><input type="range" min="10" max="95" value={selected.width} onChange={e => update(selected.id, { width: Number(e.target.value) })}/></label>
+        <label className="design-field design-range">{selected.type === "image" ? "Altura da imagem" : "Altura mínima do quadro"} <strong>{Math.round(selected.height || 80)}px</strong><input type="range" min="36" max="520" value={selected.height || 80} onChange={e => update(selected.id, { height: Number(e.target.value) })}/></label>
         <div className="design-position-fields"><label className="design-field">Posição horizontal<input type="number" min="0" max="100" value={Math.round(selected.x)} onChange={e => update(selected.id, { x: Math.max(0, Math.min(100, Number(e.target.value))) })}/></label><label className="design-field">Posição vertical<input type="number" min="0" max="100" value={Math.round(selected.y)} onChange={e => update(selected.id, { y: Math.max(0, Math.min(100, Number(e.target.value))) })}/></label></div>
         {selected.type === "text" && <label className="design-color-field"><span>Cor da letra</span><input type="color" value={selected.color || event.primaryColor} onChange={e => update(selected.id, { color: e.target.value })}/></label>}
         {selected.type === "text" && <label className="design-check"><input type="checkbox" checked={Boolean(selected.backgroundColor)} onChange={e => update(selected.id, { backgroundColor: e.target.checked ? "#fffaf0" : undefined })}/> Exibir quadro atrás do texto</label>}
@@ -137,10 +169,11 @@ export default function InvitationDesignCanvas({ event, editable = false, onChan
       <div className="design-layer-list"><strong>Camadas</strong>{elements.map((element, index) => <button type="button" key={element.id} className={element.id === selectedId ? "active" : ""} onClick={() => setSelectedId(element.id)}><span>{element.type === "image" ? "▧" : "T"}</span>{element.type === "image" ? `Imagem ${index + 1}` : getDesignElementText(element, event).slice(0, 27) || "Texto sem conteúdo"}</button>)}</div>
     </aside>}
     <div className="design-stage-wrap">
-      {editable && <div className="design-stage-help">Prévia interativa <span>Arraste os textos e imagens para mover</span></div>}
-      <article ref={stageRef} className={`design-stage ${editable ? "editing" : "public-invitation-card"}`} onPointerMove={drag} onPointerUp={() => { dragging.current = null; }} onPointerCancel={() => { dragging.current = null; }} style={{ maxWidth: device === "mobile" ? 390 : 720, backgroundColor: event.backgroundColor, backgroundImage: event.cover ? `linear-gradient(#18231d55,#18231d55),url("${event.cover}")` : undefined, borderColor: `${event.primaryColor}55` }}>
-        {elements.map(element => <div key={element.id} className={`design-element ${element.type === "image" ? "image-element" : "text-element"} ${editable && selectedId === element.id ? "selected" : ""}`} onPointerDown={e => startDrag(element, e)} onClick={() => editable && setSelectedId(element.id)} onKeyDown={e => { if (!editable) return; const delta = e.shiftKey ? 5 : 1; const next = { ...element }; if (e.key === "ArrowLeft") next.x = Math.max(0, next.x - delta); else if (e.key === "ArrowRight") next.x = Math.min(100, next.x + delta); else if (e.key === "ArrowUp") next.y = Math.max(0, next.y - delta); else if (e.key === "ArrowDown") next.y = Math.min(100, next.y + delta); else return; e.preventDefault(); update(element.id, { x: next.x, y: next.y }); }} role={editable ? "button" : undefined} tabIndex={editable ? 0 : undefined} aria-label={editable ? `${element.type === "image" ? "Imagem" : "Texto"}: ${element.type === "text" ? getDesignElementText(element, event) : "arraste para posicionar"}` : undefined} style={{ left: `${element.x}%`, top: `${element.y}%`, width: `${element.width}%`, fontFamily: element.fontFamily || undefined, fontSize: element.fontSize ? `${element.fontSize}px` : undefined, color: element.color || undefined, textAlign: element.align || "center", backgroundColor: element.backgroundColor || "transparent", border: element.borderColor ? `1px solid ${element.borderColor}` : "1px solid transparent", borderRadius: element.borderRadius || 0 }}>
-          {element.type === "image" ? <img src={element.image} alt="" draggable={false}/> : getDesignElementText(element, event)}
+      {editable && <div className="design-stage-help">Prévia interativa <span>Arraste para mover; puxe a alça no canto para redimensionar</span></div>}
+      <article ref={stageRef} className={`design-stage ${editable ? "editing" : "public-invitation-card"}`} onPointerMove={drag} onPointerUp={() => { dragging.current = null; resizing.current = null; }} onPointerCancel={() => { dragging.current = null; resizing.current = null; }} style={{ maxWidth: device === "mobile" ? 390 : 720, backgroundColor: event.backgroundColor, backgroundImage: event.cover ? `linear-gradient(#18231d55,#18231d55),url("${event.cover}")` : undefined, borderColor: `${event.primaryColor}55` }}>
+        {elements.map(element => <div key={element.id} className={`design-element ${element.type === "image" ? "image-element" : "text-element"} ${editable && selectedId === element.id ? "selected" : ""}`} onPointerDown={e => startDrag(element, e)} onClick={() => editable && setSelectedId(element.id)} onKeyDown={e => { if (!editable) return; const delta = e.shiftKey ? 5 : 1; const next = { ...element }; if (e.key === "ArrowLeft") next.x = Math.max(0, next.x - delta); else if (e.key === "ArrowRight") next.x = Math.min(100, next.x + delta); else if (e.key === "ArrowUp") next.y = Math.max(0, next.y - delta); else if (e.key === "ArrowDown") next.y = Math.min(100, next.y + delta); else return; e.preventDefault(); update(element.id, { x: next.x, y: next.y }); }} role={editable ? "button" : undefined} tabIndex={editable ? 0 : undefined} aria-label={editable ? `${element.type === "image" ? "Imagem" : "Texto"}: ${element.type === "text" ? getDesignElementText(element, event) : "arraste para posicionar"}` : undefined} style={{ left: `${element.x}%`, top: `${element.y}%`, width: `${element.width}%`, minHeight: element.height ? `${element.height}px` : undefined, fontFamily: element.fontFamily || undefined, fontSize: element.fontSize ? `${element.fontSize}px` : undefined, color: element.color || undefined, textAlign: element.align || "center", justifyContent: element.align === "left" ? "flex-start" : element.align === "right" ? "flex-end" : "center", backgroundColor: element.backgroundColor || "transparent", border: element.borderColor ? `1px solid ${element.borderColor}` : "1px solid transparent", borderRadius: element.borderRadius || 0 }}>
+          {element.type === "image" ? <img src={element.image} alt="" draggable={false} style={element.height ? { height: `${element.height}px` } : undefined}/> : getDesignElementText(element, event)}
+          {editable && selectedId === element.id && <button type="button" className="design-resize-handle" aria-label="Arraste para aumentar ou diminuir o elemento" title="Arraste para redimensionar" onPointerDown={e => startResize(element, e)} />}
         </div>)}
         {editable && !elements.length && <div className="design-empty-canvas">Adicione um texto ou uma imagem para começar.</div>}
       </article>

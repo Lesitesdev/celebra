@@ -21,6 +21,7 @@ export type InviteDesignElement = {
   x: number;
   y: number;
   width: number;
+  height?: number;
   fontFamily?: string;
   fontSize?: number;
   color?: string;
