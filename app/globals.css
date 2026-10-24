@@ -276,7 +276,16 @@ body { background:#fffaf7; }
 .manual-gift { margin-top:15px; padding:12px 14px; border:1px dashed #d8baca; border-radius:12px; }
 .manual-gift summary { cursor:pointer; color:#883c5b; font-size:13px; font-weight:700; }
 .manual-gift[open] summary { margin-bottom:14px; }
-@media(max-width:600px) { .gift-suggestion { grid-template-columns:20px 1fr; } .gift-suggestion-value { grid-column:2; } .gift-suggestion-list { gap:8px; } }
+.gift-suggestion { grid-template-columns:20px 44px minmax(0,1fr) auto; }
+.gift-suggestion-thumb,.gift-suggestion-emoji { width:44px; height:44px; border-radius:10px; object-fit:cover; }
+.gift-suggestion-emoji { display:grid; place-items:center; background:#fff1e7; font-size:23px; }
+.gift-suggestion-copy { min-width:0; }
+.gift-suggestion-copy strong,.gift-suggestion-copy small { overflow-wrap:anywhere; }
+.gift-image-upload { display:flex; align-items:center; gap:8px; align-self:flex-end; padding:7px 10px; border:1px solid #eadfe7; border-radius:10px; color:#883c5b; cursor:pointer; font-size:12px; font-weight:700; }
+.gift-image-upload img,.gift-image-upload>span:first-child { display:grid; place-items:center; width:38px; height:38px; border-radius:8px; object-fit:cover; background:#fff1e7; font-size:21px; }
+.gift-image-upload input { display:none; }
+.gift-manual-preview { display:block; width:76px; height:76px; margin-top:8px; border-radius:10px; object-fit:cover; }
+@media(max-width:600px) { .gift-suggestion { grid-template-columns:20px 38px minmax(0,1fr); } .gift-suggestion-thumb,.gift-suggestion-emoji { width:38px; height:38px; } .gift-suggestion-copy { grid-column:3; } .gift-suggestion-value { grid-column:3; } .gift-suggestion-list { gap:8px; } }
 @media(max-width:600px) { .editor-invite-stage { min-height:560px; } .editor-text-layer { width:88%; padding:17px 12px; } .invite-card { min-height:560px; } .invite-content { width:88%; padding:18px 13px; } }
 
 /* Tipografia ampliada e mais legivel em toda a plataforma. */

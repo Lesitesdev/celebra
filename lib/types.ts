@@ -6,6 +6,7 @@ export type InvitationEvent = {
   templateId: string; primaryColor: string; backgroundColor: string; buttonText: string;
   cover: string; status: EventStatus; createdAt: string; maxGuests: number;
   gifts?: GiftItem[];
+  customGiftSuggestions?: GiftItem[];
   fontFamily?: string;
   textPosition?: { x: number; y: number };
 };
