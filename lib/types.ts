@@ -22,6 +22,8 @@ export type InviteDesignElement = {
   y: number;
   width: number;
   height?: number;
+  fullBleed?: boolean;
+  imageFit?: "cover" | "contain";
   fontFamily?: string;
   fontSize?: number;
   color?: string;

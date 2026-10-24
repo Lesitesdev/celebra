@@ -77,7 +77,7 @@ export default function InvitationDesignCanvas({ event, editable = false, onChan
       const image = await readImage(file);
       const element: InviteDesignElement = {
         id: crypto.randomUUID(), type: "image", image,
-        x: 50, y: 50, width: 30, align: "center", borderRadius: 8
+        x: 50, y: 50, width: 30, align: "center", borderRadius: 8, imageFit: "contain"
       };
       commit([...elements, element]);
       setSelectedId(element.id);
@@ -91,6 +91,7 @@ export default function InvitationDesignCanvas({ event, editable = false, onChan
     e.preventDefault();
     e.stopPropagation();
     setSelectedId(element.id);
+    if (element.fullBleed) return;
     dragging.current = element.id;
     e.currentTarget.setPointerCapture(e.pointerId);
   }
@@ -144,6 +145,28 @@ export default function InvitationDesignCanvas({ event, editable = false, onChan
     commit(next);
   }
 
+  function moveLayer(id: string, destination: "back" | "front") {
+    const index = elements.findIndex(element => element.id === id);
+    if (index < 0) return;
+    const next = [...elements];
+    const [element] = next.splice(index, 1);
+    next.splice(destination === "back" ? 0 : next.length, 0, element);
+    commit(next);
+  }
+
+  function toggleFullBleedImage(element: InviteDesignElement) {
+    if (element.type !== "image") return;
+    if (element.fullBleed) {
+      update(element.id, { fullBleed: false, width: 34, height: 220, x: 50, y: 50 });
+      return;
+    }
+    const next = elements.map(item => item.id === element.id
+      ? { ...item, fullBleed: true, width: 100, height: undefined, imageFit: "cover" as const, x: 50, y: 50 }
+      : item);
+    const image = next.find(item => item.id === element.id)!;
+    commit([image, ...next.filter(item => item.id !== element.id)]);
+  }
+
   return <div className={`design-editor ${editable ? "is-editable" : "is-readonly"}`}>
     {editable && <aside className="design-inspector">
       <div className="design-inspector-heading"><div><span className="eyebrow">PERSONALIZAÇÃO</span><h3>Composição do convite</h3></div><span className="design-layer-count">{elements.length} elementos</span></div>
@@ -151,29 +174,34 @@ export default function InvitationDesignCanvas({ event, editable = false, onChan
       <div className="design-add-actions"><button type="button" className="btn btn-light" onClick={addText}>＋ Adicionar texto</button><label className="btn btn-light design-image-button">＋ Adicionar imagem<input type="file" accept="image/*" onChange={e => { void addImage(e.target.files?.[0]); e.currentTarget.value = ""; }}/></label></div>
       {imageError && <p className="form-error" role="alert">{imageError}</p>}
       {selected ? <div className="design-controls">
-        <div className="design-selected-title"><strong>{selected.type === "image" ? "Imagem selecionada" : "Texto selecionado"}</strong><div><button type="button" className="design-icon-button" aria-label="Enviar para trás" title="Enviar para trás" onClick={() => reorder(selected.id, -1)}>↓</button><button type="button" className="design-icon-button" aria-label="Trazer para frente" title="Trazer para frente" onClick={() => reorder(selected.id, 1)}>↑</button><button type="button" className="design-icon-button danger" aria-label="Remover elemento" title="Remover elemento" onClick={() => { commit(elements.filter(element => element.id !== selected.id)); setSelectedId(""); }}>×</button></div></div>
+        <div className="design-selected-title"><strong>{selected.type === "image" ? "Imagem selecionada" : "Texto selecionado"}</strong><div><button type="button" className="design-icon-button" aria-label="Enviar para trás" title="Enviar para trás" onClick={() => moveLayer(selected.id, "back")}>↓</button><button type="button" className="design-icon-button" aria-label="Trazer para frente" title="Trazer para frente" onClick={() => moveLayer(selected.id, "front")}>↑</button><button type="button" className="design-icon-button danger" aria-label="Remover elemento" title="Remover elemento" onClick={() => { commit(elements.filter(element => element.id !== selected.id)); setSelectedId(""); }}>×</button></div></div>
         {selected.type === "text" ? <>
           <label className="design-field design-field-full">Texto<textarea rows={3} value={getDesignElementText(selected, event)} onChange={e => update(selected.id, { text: e.target.value, sourceField: undefined })}/></label>
           <div className="design-field-row"><label className="design-field">Fonte<select value={selected.fontFamily || "Georgia"} onChange={e => update(selected.id, { fontFamily: e.target.value })}>{fontChoices.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label className="design-field">Alinhamento<select value={selected.align || "center"} onChange={e => update(selected.id, { align: e.target.value as InviteDesignElement["align"] })}><option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option></select></label></div>
           <label className="design-field design-range">Tamanho da letra <strong>{selected.fontSize || 24}px</strong><input type="range" min="10" max="96" value={selected.fontSize || 24} onChange={e => update(selected.id, { fontSize: Number(e.target.value) })}/></label>
-        </> : <label className="design-field design-field-full">Trocar imagem<input type="file" accept="image/*" onChange={e => { const file = e.target.files?.[0]; if (file) void readImage(file).then(image => update(selected.id, { image })).catch(error => setImageError(error instanceof Error ? error.message : "Não foi possível carregar essa imagem.")); e.currentTarget.value = ""; }}/></label>}
-        <label className="design-field design-range">Largura do elemento <strong>{Math.round(selected.width)}%</strong><input type="range" min="10" max="95" value={selected.width} onChange={e => update(selected.id, { width: Number(e.target.value) })}/></label>
-        <label className="design-field design-range">{selected.type === "image" ? "Altura da imagem" : "Altura mínima do quadro"} <strong>{Math.round(selected.height || 80)}px</strong><input type="range" min="36" max="520" value={selected.height || 80} onChange={e => update(selected.id, { height: Number(e.target.value) })}/></label>
-        <div className="design-position-fields"><label className="design-field">Posição horizontal<input type="number" min="0" max="100" value={Math.round(selected.x)} onChange={e => update(selected.id, { x: Math.max(0, Math.min(100, Number(e.target.value))) })}/></label><label className="design-field">Posição vertical<input type="number" min="0" max="100" value={Math.round(selected.y)} onChange={e => update(selected.id, { y: Math.max(0, Math.min(100, Number(e.target.value))) })}/></label></div>
+        </> : <>
+          <label className="design-field design-field-full">Trocar imagem<input type="file" accept="image/*" onChange={e => { const file = e.target.files?.[0]; if (file) void readImage(file).then(image => update(selected.id, { image })).catch(error => setImageError(error instanceof Error ? error.message : "Não foi possível carregar essa imagem.")); e.currentTarget.value = ""; }}/></label>
+          <button type="button" className={`design-background-action ${selected.fullBleed ? "active" : ""}`} onClick={() => toggleFullBleedImage(selected)}>{selected.fullBleed ? "Imagem preenchendo o convite — remover modo fundo" : "Usar imagem como fundo (100% do convite)"}</button>
+          <p className="design-control-hint">A imagem cobre toda a página e fica atrás dos textos. Use a lista Camadas para selecionar e editar textos sobre ela.</p>
+          {!selected.fullBleed && <label className="design-field design-field-full">Ajuste da imagem<select value={selected.imageFit || "contain"} onChange={e => update(selected.id, { imageFit: e.target.value as "cover" | "contain" })}><option value="contain">Mostrar a foto inteira</option><option value="cover">Preencher quadro (pode cortar as bordas)</option></select></label>}
+        </>}
+        {!selected.fullBleed && <label className="design-field design-range">Largura do elemento <strong>{Math.round(selected.width)}%</strong><input type="range" min="10" max="95" value={selected.width} onChange={e => update(selected.id, { width: Number(e.target.value) })}/></label>}
+        {!selected.fullBleed && <label className="design-field design-range">{selected.type === "image" ? "Altura da imagem" : "Altura mínima do quadro"} <strong>{Math.round(selected.height || 80)}px</strong><input type="range" min="36" max="520" value={selected.height || 80} onChange={e => update(selected.id, { height: Number(e.target.value) })}/></label>}
+        {!selected.fullBleed && <div className="design-position-fields"><label className="design-field">Posição horizontal<input type="number" min="0" max="100" value={Math.round(selected.x)} onChange={e => update(selected.id, { x: Math.max(0, Math.min(100, Number(e.target.value))) })}/></label><label className="design-field">Posição vertical<input type="number" min="0" max="100" value={Math.round(selected.y)} onChange={e => update(selected.id, { y: Math.max(0, Math.min(100, Number(e.target.value))) })}/></label></div>}
         {selected.type === "text" && <label className="design-color-field"><span>Cor da letra</span><input type="color" value={selected.color || event.primaryColor} onChange={e => update(selected.id, { color: e.target.value })}/></label>}
         {selected.type === "text" && <label className="design-check"><input type="checkbox" checked={Boolean(selected.backgroundColor)} onChange={e => update(selected.id, { backgroundColor: e.target.checked ? "#fffaf0" : undefined })}/> Exibir quadro atrás do texto</label>}
         {selected.type === "text" && selected.backgroundColor && <><label className="design-color-field"><span>Cor do quadro</span><input type="color" value={selected.backgroundColor} onChange={e => update(selected.id, { backgroundColor: e.target.value })}/></label><label className="design-range">Arredondamento do quadro <strong>{selected.borderRadius || 0}px</strong><input type="range" min="0" max="32" value={selected.borderRadius || 0} onChange={e => update(selected.id, { borderRadius: Number(e.target.value) })}/></label></>}
         <label className="design-check"><input type="checkbox" checked={Boolean(selected.borderColor)} onChange={e => update(selected.id, { borderColor: e.target.checked ? event.primaryColor : undefined })}/> Exibir moldura no elemento</label>
         {selected.borderColor && <label className="design-color-field"><span>Cor da moldura</span><input type="color" value={selected.borderColor} onChange={e => update(selected.id, { borderColor: e.target.value })}/></label>}
       </div> : <div className="design-empty-selection">Selecione um elemento no convite para ajustar fonte, cor, tamanho e posição.</div>}
-      <div className="design-layer-list"><strong>Camadas</strong>{elements.map((element, index) => <button type="button" key={element.id} className={element.id === selectedId ? "active" : ""} onClick={() => setSelectedId(element.id)}><span>{element.type === "image" ? "▧" : "T"}</span>{element.type === "image" ? `Imagem ${index + 1}` : getDesignElementText(element, event).slice(0, 27) || "Texto sem conteúdo"}</button>)}</div>
+      <div className="design-layer-list"><strong>Camadas <small>(fundo primeiro, frente por último)</small></strong>{elements.map((element, index) => <button type="button" key={element.id} className={element.id === selectedId ? "active" : ""} onClick={() => setSelectedId(element.id)}><span>{element.type === "image" ? "▧" : "T"}</span>{element.type === "image" ? element.fullBleed ? "Foto de fundo · 100%" : `Imagem ${index + 1}` : getDesignElementText(element, event).slice(0, 27) || "Texto sem conteúdo"}</button>)}</div>
     </aside>}
     <div className="design-stage-wrap">
-      {editable && <div className="design-stage-help">Prévia interativa <span>Arraste para mover; puxe a alça no canto para redimensionar</span></div>}
+      {editable && <div className="design-stage-help">Prévia interativa <span>Arraste os elementos para mover; use os controles para redimensionar e organizar as camadas</span></div>}
       <article ref={stageRef} className={`design-stage ${editable ? "editing" : "public-invitation-card"}`} onPointerMove={drag} onPointerUp={() => { dragging.current = null; resizing.current = null; }} onPointerCancel={() => { dragging.current = null; resizing.current = null; }} style={{ maxWidth: device === "mobile" ? 390 : 720, backgroundColor: event.backgroundColor, backgroundImage: event.cover ? `linear-gradient(#18231d55,#18231d55),url("${event.cover}")` : undefined, borderColor: `${event.primaryColor}55` }}>
-        {elements.map(element => <div key={element.id} className={`design-element ${element.type === "image" ? "image-element" : "text-element"} ${editable && selectedId === element.id ? "selected" : ""}`} onPointerDown={e => startDrag(element, e)} onClick={() => editable && setSelectedId(element.id)} onKeyDown={e => { if (!editable) return; const delta = e.shiftKey ? 5 : 1; const next = { ...element }; if (e.key === "ArrowLeft") next.x = Math.max(0, next.x - delta); else if (e.key === "ArrowRight") next.x = Math.min(100, next.x + delta); else if (e.key === "ArrowUp") next.y = Math.max(0, next.y - delta); else if (e.key === "ArrowDown") next.y = Math.min(100, next.y + delta); else return; e.preventDefault(); update(element.id, { x: next.x, y: next.y }); }} role={editable ? "button" : undefined} tabIndex={editable ? 0 : undefined} aria-label={editable ? `${element.type === "image" ? "Imagem" : "Texto"}: ${element.type === "text" ? getDesignElementText(element, event) : "arraste para posicionar"}` : undefined} style={{ left: `${element.x}%`, top: `${element.y}%`, width: `${element.width}%`, minHeight: element.height ? `${element.height}px` : undefined, fontFamily: element.fontFamily || undefined, fontSize: element.fontSize ? `${element.fontSize}px` : undefined, color: element.color || undefined, textAlign: element.align || "center", justifyContent: element.align === "left" ? "flex-start" : element.align === "right" ? "flex-end" : "center", backgroundColor: element.backgroundColor || "transparent", border: element.borderColor ? `1px solid ${element.borderColor}` : "1px solid transparent", borderRadius: element.borderRadius || 0 }}>
-          {element.type === "image" ? <img src={element.image} alt="" draggable={false} style={element.height ? { height: `${element.height}px` } : undefined}/> : getDesignElementText(element, event)}
-          {editable && selectedId === element.id && <button type="button" className="design-resize-handle" aria-label="Arraste para aumentar ou diminuir o elemento" title="Arraste para redimensionar" onPointerDown={e => startResize(element, e)} />}
+        {elements.map((element, index) => <div key={element.id} className={`design-element ${element.type === "image" ? "image-element" : "text-element"} ${element.fullBleed ? "full-bleed-image" : ""} ${editable && selectedId === element.id ? "selected" : ""}`} onPointerDown={e => startDrag(element, e)} onClick={() => editable && setSelectedId(element.id)} onKeyDown={e => { if (!editable) return; const delta = e.shiftKey ? 5 : 1; const next = { ...element }; if (e.key === "ArrowLeft") next.x = Math.max(0, next.x - delta); else if (e.key === "ArrowRight") next.x = Math.min(100, next.x + delta); else if (e.key === "ArrowUp") next.y = Math.max(0, next.y - delta); else if (e.key === "ArrowDown") next.y = Math.min(100, next.y + delta); else return; e.preventDefault(); update(element.id, { x: next.x, y: next.y }); }} role={editable ? "button" : undefined} tabIndex={editable ? 0 : undefined} aria-label={editable ? `${element.type === "image" ? "Imagem" : "Texto"}: ${element.type === "text" ? getDesignElementText(element, event) : "arraste para posicionar"}` : undefined} style={{ left: element.fullBleed ? 0 : `${element.x}%`, top: element.fullBleed ? 0 : `${element.y}%`, width: element.fullBleed ? "100%" : `${element.width}%`, height: element.fullBleed ? "100%" : undefined, transform: element.fullBleed ? "none" : undefined, zIndex: index + 1, minHeight: !element.fullBleed && element.height ? `${element.height}px` : undefined, fontFamily: element.fontFamily || undefined, fontSize: element.fontSize ? `${element.fontSize}px` : undefined, color: element.color || undefined, textAlign: element.align || "center", justifyContent: element.align === "left" ? "flex-start" : element.align === "right" ? "flex-end" : "center", backgroundColor: element.backgroundColor || "transparent", border: element.borderColor ? `1px solid ${element.borderColor}` : "1px solid transparent", borderRadius: element.fullBleed ? 0 : element.borderRadius || 0 }}>
+          {element.type === "image" ? <img src={element.image} alt="" draggable={false} style={element.fullBleed ? { width: "100%", height: "100%", objectFit: "cover" } : element.height ? { height: `${element.height}px`, objectFit: element.imageFit || "contain" } : { objectFit: element.imageFit || "contain" }}/> : getDesignElementText(element, event)}
+          {editable && selectedId === element.id && !element.fullBleed && <button type="button" className="design-resize-handle" aria-label="Arraste para aumentar ou diminuir o elemento" title="Arraste para redimensionar" onPointerDown={e => startResize(element, e)} />}
         </div>)}
         {editable && !elements.length && <div className="design-empty-canvas">Adicione um texto ou uma imagem para começar.</div>}
       </article>
