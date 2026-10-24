@@ -72,7 +72,16 @@ export default function LoginPage() {
     try {
       const response = await fetch(`${API_URL}/api/auth/${mode === "login" ? "login" : "register"}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const data = await readResponse(response);
-      if (!response.ok) throw new Error(data.message || data.detail || "Não foi possível concluir. Confira seus dados e tente novamente.");
+      if (!response.ok) {
+        const message = data.message || data.detail || (response.status === 409
+          ? "Este e-mail já possui uma conta. Entre com ela ou use outro e-mail."
+          : response.status === 401 && mode === "login"
+            ? "E-mail ou senha incorretos. Confira os dados e tente novamente."
+            : response.status === 401 && mode === "register"
+              ? "A API está bloqueando cadastros sem login. Reinicie o backend para aplicar a configuração atual."
+              : "Não foi possível concluir. Confira seus dados e tente novamente.");
+        throw new Error(message);
+      }
       await finishLogin(data);
     } catch (e) { setError(readableConnectionError(e)); setBusy(false); }
   }
