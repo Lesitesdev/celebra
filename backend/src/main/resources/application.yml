@@ -1,0 +1,30 @@
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: celebra-api
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/celebra}
+    username: ${SPRING_DATASOURCE_USERNAME:celebra}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  jackson:
+    default-property-inclusion: non_null
+
+celebra:
+  jwt:
+    secret: ${CELEBRA_JWT_SECRET:}
+    issuer: celebra-local
+    expiration: PT8H
+  cors:
+    allowed-origin: ${CELEBRA_FRONTEND_ORIGIN:http://localhost:3000}
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}

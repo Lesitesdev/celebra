@@ -1,8 +1,11 @@
 ﻿node_modules/
 .next/
+.next-verify/
 out/
 build/
 .DS_Store
 *.log
 .env*
 !.env.example
+**/target/
+*.tsbuildinfo

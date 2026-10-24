@@ -1,0 +1,35 @@
+"use client";
+import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
+import { getEvent, readGuests, writeGuests } from "@/lib/storage";
+import type { GuestResponse, InvitationEvent } from "@/lib/types";
+
+const labels: Record<string, string> = { presentes: "Lista de presentes", "confirmar-presenca": "Confirmar presença", "como-chegar": "Como chegar" };
+export default function InviteSectionPage() {
+  const { slug, section } = useParams<{ slug: string; section: string }>();
+  const searchParams = useSearchParams();
+  const isPreview = searchParams.get("preview") === "1";
+  const [event, setEvent] = useState<InvitationEvent>(); const [loaded, setLoaded] = useState(false);
+  const [name, setName] = useState(""); const [phone, setPhone] = useState(""); const [answer, setAnswer] = useState("yes"); const [people, setPeople] = useState(1); const [companions, setCompanions] = useState(""); const [notes, setNotes] = useState(""); const [error, setError] = useState(""); const [done, setDone] = useState(false);
+  useEffect(() => { setEvent(getEvent(slug)); setLoaded(true); }, [slug]);
+  if (!loaded) return <main className="invite-state">Carregando…</main>;
+  if (!event || (event.status !== "Publicado" && !isPreview) || !labels[section]) return <main className="invite-state"><section className="card invite-state-card"><h1 className="serif">Página indisponível</h1><Link className="btn btn-primary" href={`/convite/${slug}`}>Voltar ao convite</Link></section></main>;
+  const address = [event.venue, event.address, event.city, event.state].filter(Boolean).join(", ");
+  const mapHref = address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` : "";
+  function submit(e: FormEvent) {
+    e.preventDefault(); setError("");
+    if (!name.trim()) { setError("Informe seu nome completo."); return; }
+    if (answer === "yes" && (people < 1 || people > event!.maxGuests)) { setError(`Informe de 1 a ${event!.maxGuests} pessoas.`); return; }
+    const guests = readGuests();
+    if (guests.some(g => g.eventId === event!.id && g.name.trim().toLocaleLowerCase() === name.trim().toLocaleLowerCase() && g.source === "RSVP")) { setError("Já existe uma resposta com este nome para este evento. Fale com os anfitriões para atualizar seus dados."); return; }
+    const response: GuestResponse = { id: crypto.randomUUID(), eventId: event!.id, name: name.trim(), phone: phone.trim(), attending: answer === "yes", people: answer === "yes" ? people : 0, companions: answer === "yes" ? companions.trim() : "", notes: notes.trim(), respondedAt: new Date().toISOString(), source: "RSVP" };
+    writeGuests([...guests, response]); setDone(true);
+  }
+  return <main className="public-page"><div className="public-wrap"><Link href={`/convite/${event.slug}${isPreview?"?preview=1":""}`} className="logo">celebra<span>.</span></Link><section className="card invite-section-card"><div className="eyebrow">{event.title}</div><h1 className="serif">{labels[section]}</h1>{isPreview&&event.status!=="Publicado"&&<p className="notice">Prévia privada deste rascunho neste navegador.</p>}
+    {section === "presentes" && <div>{event.gifts?.length ? <div className="gift-grid">{event.gifts.map(gift => <article className="card gift-card" key={gift.id}>{gift.image && <img src={gift.image} alt={gift.name} />}<h2 className="serif">{gift.name}</h2>{gift.description && <p className="muted">{gift.description}</p>}{gift.value != null && <strong>R$ {gift.value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</strong>}<a className="btn btn-primary" href={`mailto:?subject=${encodeURIComponent(`Presente para ${event.title}: ${gift.name}`)}&body=${encodeURIComponent("Consulte os anfitriões para combinar este presente. Não há pagamento online nesta demonstração.")}`}>Presentear</a></article>)}</div> : <div className="notice">A lista de presentes ainda não está disponível para este evento.</div>}<p className="muted" style={{ marginTop: 18 }}>Os presentes são sugestões simbólicas. Esta demonstração não processa pagamentos; combine diretamente com os anfitriões.</p></div>}
+    {section === "confirmar-presenca" && (done ? <div className="notice rsvp-success"><h2 className="serif">Resposta registrada neste navegador</h2><p>Sua confirmação ficou salva localmente para este evento. Ela não foi enviada aos anfitriões nem a um servidor.</p></div> : <form onSubmit={submit}><div className="field"><label htmlFor="guest-name">Nome completo *</label><input id="guest-name" value={name} onChange={e => setName(e.target.value)} required /></div><div className="field"><label htmlFor="guest-phone">Telefone ou WhatsApp (opcional)</label><input id="guest-phone" value={phone} onChange={e => setPhone(e.target.value)} /></div><fieldset className="field"><legend>Você poderá participar? *</legend><label className="choice"><input type="radio" name="answer" checked={answer === "yes"} onChange={() => setAnswer("yes")} /> Sim, vou participar</label><label className="choice"><input type="radio" name="answer" checked={answer === "no"} onChange={() => setAnswer("no")} /> Não poderei comparecer</label></fieldset>{answer === "yes" && <><div className="field"><label htmlFor="guest-count">Quantidade de pessoas (incluindo você)</label><select id="guest-count" value={people} onChange={e => setPeople(Number(e.target.value))}>{Array.from({ length: event.maxGuests }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n}</option>)}</select></div>{people > 1 && <div className="field"><label htmlFor="companions">Nome dos acompanhantes</label><input id="companions" value={companions} onChange={e => setCompanions(e.target.value)} /></div>}</>}<div className="field"><label htmlFor="guest-notes">Observações (opcional)</label><textarea id="guest-notes" rows={3} value={notes} onChange={e => setNotes(e.target.value)} /></div>{error && <p role="alert" className="form-error">{error}</p>}<button className="btn btn-primary" type="submit">Enviar confirmação</button><p className="muted local-note">Demonstração: resposta salva no armazenamento local deste navegador. Para persistência compartilhada, é necessário um backend.</p></form>)}
+    {section === "como-chegar" && (address ? <><h2 className="serif">{event.venue || "Local do evento"}</h2><p>{address}</p><div className="map-frame"><iframe title={`Mapa: ${address}`} src={`https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" /></div><div className="map-buttons"><a className="btn btn-primary" href={mapHref} target="_blank" rel="noreferrer">Abrir no Google Maps</a><a className="btn btn-light" href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`} target="_blank" rel="noreferrer">Iniciar rota</a></div></> : <div className="notice">A localização deste evento ainda não foi cadastrada.</div>)}
+    <Link href={`/convite/${event.slug}${isPreview?"?preview=1":""}`} className="btn btn-light" style={{ marginTop: 20 }}>← Voltar ao convite</Link>
+  </section></div></main>;
+}
