@@ -7,10 +7,28 @@ export type InvitationEvent = {
   cover: string; status: EventStatus; createdAt: string; maxGuests: number;
   gifts?: GiftItem[];
   customGiftSuggestions?: GiftItem[];
+  designElements?: InviteDesignElement[];
   fontFamily?: string;
   textPosition?: { x: number; y: number };
 };
 export type GiftItem = { id: string; name: string; description: string; value?: number; image?: string };
+export type InviteDesignElement = {
+  id: string;
+  type: "text" | "image";
+  text?: string;
+  sourceField?: "kind" | "hosts" | "message" | "dateTime" | "venue" | "location" | "symbol";
+  image?: string;
+  x: number;
+  y: number;
+  width: number;
+  fontFamily?: string;
+  fontSize?: number;
+  color?: string;
+  align?: "left" | "center" | "right";
+  backgroundColor?: string;
+  borderColor?: string;
+  borderRadius?: number;
+};
 export type GuestResponse = {
   id: string; eventId: string; name: string; phone: string; attending: boolean; people: number;
   companions: string; notes: string; respondedAt: string; source: "RSVP" | "Manual";

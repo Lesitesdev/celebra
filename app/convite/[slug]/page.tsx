@@ -5,6 +5,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { getEvent } from "@/lib/storage";
 import { templates } from "@/lib/data";
 import type { InvitationEvent } from "@/lib/types";
+import InvitationDesignCanvas from "@/app/components/InvitationDesignCanvas";
 
 export default function PublicInvitePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -18,9 +19,9 @@ export default function PublicInvitePage() {
   return <main className="public-page" style={{ "--event-accent": event.primaryColor, "--event-background": event.backgroundColor } as React.CSSProperties}>
     <div className="public-wrap"><Link href="/" className="logo">celebra<span>.</span></Link>
       {isPreview&&<div className="invite-preview-toolbar"><span>Pr&#233;via do seu convite</span><Link href={`/painel/eventos/${event.id}/editar-convite`} className="btn btn-primary">&#8592; Voltar &#224; edi&#231;&#227;o</Link></div>}
-      <article className="invite-card public-invitation-card" style={{ backgroundColor: event.backgroundColor, borderColor: `${event.primaryColor}55`, backgroundImage: event.cover ? `linear-gradient(#18231d55,#18231d55),url("${event.cover}")` : undefined, backgroundSize: "cover", backgroundPosition: "center", minHeight: event.cover ? 640 : undefined }}>
+      {event.designElements ? <InvitationDesignCanvas event={event} /> : <article className="invite-card public-invitation-card" style={{ backgroundColor: event.backgroundColor, borderColor: `${event.primaryColor}55`, backgroundImage: event.cover ? `linear-gradient(#18231d55,#18231d55),url("${event.cover}")` : undefined, backgroundSize: "cover", backgroundPosition: "center", minHeight: event.cover ? 640 : undefined }}>
         <div className="invite-content" style={{ left: `${(event.textPosition || { x: 50, y: 50 }).x}%`, top: `${(event.textPosition || { x: 50, y: 50 }).y}%`, fontFamily: event.fontFamily || "Georgia" }}><span className="invite-symbol" style={{ color: event.primaryColor }}>{model.symbol}</span><div className="eyebrow" style={{ color: event.primaryColor }}>{event.kind}</div><h1 className="serif" style={{ color: event.primaryColor }}>{event.hosts || event.title}</h1><p className="invite-message">{event.message}</p><div className="invite-divider" style={{ background: event.primaryColor }} /><p className="invite-date">{new Date(`${event.date}T12:00:00`).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" })} · {event.time}</p><h2 className="serif invite-venue">{event.venue || "Celebração"}</h2><p className="muted">{[event.address, event.city, event.state].filter(Boolean).join(", ")}</p></div>
-      </article>
+      </article>}
       {isPreview && event.status !== "Publicado" && <p className="notice" style={{marginTop:14}}>Prévia privada deste rascunho neste navegador.</p>}
       <nav className="invite-actions" aria-label="Opções do convite">
         <Link href={`/convite/${event.slug}/presentes${isPreview?"?preview=1":""}`} className="invite-action"><span>🎁</span><strong>Lista de presentes</strong><small>Veja sugestões para celebrar</small></Link>
