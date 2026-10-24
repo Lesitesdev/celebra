@@ -21,12 +21,17 @@ $env:SPRING_DATASOURCE_USERNAME = "celebra_dev"
 $env:SPRING_DATASOURCE_PASSWORD = "celebra_dev_only"
 $env:CELEBRA_JWT_SECRET = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
 $env:GOOGLE_CLIENT_ID = "seu-client-id.apps.googleusercontent.com"
+$env:CELEBRA_PLATFORM_ADMIN_EMAILS = "admin@seudominio.com"
 mvn spring-boot:run
 ```
 
 Flyway cria o schema na primeira inicializacao. O segredo JWT acima e temporario para desenvolvimento; gere um segredo persistente no `.env` local antes de trabalhar com varias sessoes. Nunca reutilize a senha local nem esse arranjo em producao.
 
 Para habilitar o Google, crie um OAuth Client ID do tipo Web no Google Cloud Console e adicione `http://localhost:3000` como origem JavaScript autorizada. Use o mesmo valor em `GOOGLE_CLIENT_ID` no terminal do backend e `NEXT_PUBLIC_GOOGLE_CLIENT_ID` no `.env.local` da raiz do Next.js (copie o `.env.example`). O backend valida a assinatura do token, o emissor, o Client ID destinatario e o e-mail verificado antes de criar ou acessar a conta.
+
+## Admin da plataforma
+
+A pagina interna fica em `http://localhost:3000/admin`. Ela mostra indicadores globais e contas de buffet/individuais. As rotas `GET /api/admin/overview` e `GET /api/admin/accounts` exigem token e verificam o e-mail cadastrado em `CELEBRA_PLATFORM_ADMIN_EMAILS`, uma lista separada por virgulas configurada apenas no ambiente do backend. Cadastre uma conta Celebra normal com esse e-mail, inclua o mesmo e-mail na variavel e reinicie a API. O cadastro publico nao concede permissao administrativa. Creditos, pagamentos e suporte aparecem como areas futuras porque ainda nao ha integracao de cobranca nem ferramentas operacionais para essas tarefas.
 
 ## Endpoints
 

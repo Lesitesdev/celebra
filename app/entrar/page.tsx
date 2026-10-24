@@ -44,7 +44,7 @@ export default function LoginPage() {
     localStorage.setItem("celebra.auth.token", result.accessToken);
     localStorage.setItem("celebra.auth.user", JSON.stringify(result.user));
     localStorage.setItem("celebra.auth.accounts", JSON.stringify(result.accounts));
-    window.location.assign("/painel");
+    window.location.assign(new URLSearchParams(window.location.search).get("next") === "/admin" ? "/admin" : "/painel");
   }
 
   async function submitGoogle(credential: string) {

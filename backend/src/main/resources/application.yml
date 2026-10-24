@@ -28,3 +28,4 @@ celebra:
     allowed-origin: ${CELEBRA_FRONTEND_ORIGIN:http://localhost:3000}
   google:
     client-id: ${GOOGLE_CLIENT_ID:}
+  platform-admin-emails: ${CELEBRA_PLATFORM_ADMIN_EMAILS:}
