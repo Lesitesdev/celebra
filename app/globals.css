@@ -519,6 +519,12 @@ td { font-size:14px; }
 .design-image-button { position:relative; overflow:hidden; cursor:pointer; }
 .design-image-button input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; }
 .design-controls { display:grid; gap:11px; margin-top:15px; padding-top:13px; border-top:1px solid #f0e6ec; }
+.design-global-typography { display:grid; gap:12px; margin-top:18px; padding:16px; border:1px solid #ead4de; border-radius:14px; background:linear-gradient(140deg,#fff7f3,#fff4f8 65%,#f8f4ff); }
+.design-global-typography h4 { margin:4px 0 0; color:#453645; font-size:18px; }
+.design-global-typography p { margin:4px 0 0; color:#756976; font-size:13px; line-height:1.45; }
+.design-global-typography .design-range { margin-top:1px; }
+.design-global-color { display:grid; gap:5px; }
+.design-global-color>button { justify-self:start; padding:3px 0; border:0; background:none; color:#813e58; font:700 13px Arial,sans-serif; text-decoration:underline; cursor:pointer; }
 .design-selected-title { display:flex; align-items:center; justify-content:space-between; gap:7px; font-size:15px; }
 .design-selected-title>div { display:flex; gap:4px; }
 .design-icon-button { width:30px; height:30px; border:1px solid #eadfe7; border-radius:8px; background:#fff; color:#71364f; font-size:17px; cursor:pointer; }

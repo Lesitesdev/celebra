@@ -9,6 +9,7 @@ export type InvitationEvent = {
   customGiftSuggestions?: GiftItem[];
   designElements?: InviteDesignElement[];
   fontFamily?: string;
+  typography?: { fontFamily?: string; scale?: number; color?: string; outlineColor?: string; outlineWidth?: number };
   textPosition?: { x: number; y: number };
 };
 export type GiftItem = { id: string; name: string; description: string; value?: number; image?: string };
