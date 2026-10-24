@@ -548,7 +548,7 @@ td { font-size:14px; }
 .public-page-fullscreen .design-public-photo img { position:absolute; display:block; width:100%; height:100%; max-height:none; }
 .public-page-fullscreen .design-public-photo-blur { inset:-22px; width:calc(100% + 44px)!important; height:calc(100% + 44px)!important; object-fit:cover; filter:blur(18px) brightness(.62); }
 .public-page-fullscreen .design-public-photo-fit { inset:0; object-fit:contain; }
-.public-page-fullscreen .design-public-content { position:absolute; z-index:1; top:50%; left:50%; width:min(720px,calc(68svh * .947),calc(100vw * .947)); height:min(68svh,calc(100vw / .947)); transform:translate(-50%,-50%); }
+.public-page-fullscreen .design-public-content { position:absolute; z-index:1; top:calc(50% - 40px); left:50%; width:min(720px,calc(68svh * .947),calc(100vw * .947)); height:min(68svh,calc(100vw / .947)); transform:translate(-50%,-50%); }
 .public-page-fullscreen .design-public-content .design-element { max-width:100%; }
 .public-page-fullscreen .design-stage-help,.public-page-fullscreen .design-keyboard-hint { display:none; }
 .public-page-fullscreen .invite-actions { position:fixed; z-index:11; right:50%; bottom:20px; width:min(760px,calc(100% - 32px)); margin:0; transform:translateX(50%); padding:10px; border:1px solid #ffffff88; border-radius:22px; background:#fffdf2d9; box-shadow:0 12px 40px #1c182344; backdrop-filter:blur(16px); }
@@ -630,10 +630,10 @@ td { font-size:14px; }
 /* Convite público: arte em tela cheia e informações da plataforma ao final da página. */
 .public-page-has-design { width:100%; height:auto; min-height:100svh; overflow-x:clip; overflow-y:visible; padding:0; }
 .public-page-has-design>.public-wrap { position:relative; width:100%; height:auto; min-height:100svh; padding:0; }
-.public-page-has-design .design-editor.is-readonly { position:relative; inset:auto; width:100%; height:100svh; }
+.public-page-has-design .design-editor.is-readonly { position:relative; inset:auto; width:100%; height:calc(100svh + 80px); }
 .public-page-has-design .design-stage-wrap { position:relative; inset:auto; width:100%; height:100%; }
 .public-page-has-design .invite-actions { position:absolute; top:calc(100svh - 142px); right:50%; bottom:auto; transform:translateX(50%); }
-.public-page-has-design .public-invite-footer { position:relative; z-index:12; display:flex; flex-direction:column; align-items:center; gap:6px; margin:0; padding:14px 12px 20px; background:transparent; color:#fff; text-shadow:0 1px 4px #17141b99; }
+.public-page-has-design .public-invite-footer { position:relative; z-index:12; display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:-80px; padding:14px 12px 20px; background:transparent; color:#fff; text-shadow:0 1px 4px #17141b99; }
 .public-page-has-design .public-invite-footer p { margin:0; font-size:12px; }
 .public-page-has-design .public-invite-footer p a { color:#fff; font-weight:700; }
 .public-page-has-design .public-preview-return-float { position:fixed; z-index:20; top:14px; left:14px; display:inline-flex; align-items:center; min-height:36px; padding:7px 12px; border:1px solid #e8cdd7; border-radius:999px; background:#fffdf2ed; box-shadow:0 3px 14px #1c182322; color:#913c58; font-size:12px; font-weight:700; }

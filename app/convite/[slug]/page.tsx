@@ -21,7 +21,7 @@ export default function PublicInvitePage() {
       const accounts = JSON.parse(localStorage.getItem("celebra.auth.accounts") || "[]");
       const accountId = Array.isArray(accounts) ? accounts[0]?.accountId : undefined;
       const user = JSON.parse(localStorage.getItem("celebra.auth.user") || "null");
-      isOwner = Boolean(savedEvent && ((savedEvent.accountId && savedEvent.accountId === accountId) || (savedEvent.accountId && (savedEvent.accountId === user?.id || savedEvent.accountId === user?.email)) || (!savedEvent.accountId && user)));
+      isOwner = Boolean(savedEvent && (accountId || user));
     } catch { isOwner = false; }
     setCanReturnToEditor(isPreview || isOwner);
     setLoaded(true);
@@ -29,8 +29,7 @@ export default function PublicInvitePage() {
   if (!loaded) return <main className="invite-state">Carregando convite…</main>;
   if (!event || (event.status !== "Publicado" && !isPreview)) return <main className="invite-state"><section className="card invite-state-card"><span className="logo">celebra<span>.</span></span><h1 className="serif">Este convite não está disponível</h1><p className="muted">O link pode estar incorreto ou o convite ainda não foi publicado.</p><Link href="/" className="btn btn-primary">Conhecer o Celebra</Link></section></main>;
   const model = templates.find(t => t.id === event.templateId) || templates[0];
-  const invitePhoto = event.cover || event.designElements?.find(element => element.type === "image")?.image;
-  return <main className="public-page public-page-fullscreen public-page-has-design" style={{ "--event-accent": event.primaryColor, "--event-background": event.backgroundColor, backgroundColor: event.backgroundColor, ...(invitePhoto ? { backgroundImage: `linear-gradient(#17141b45,#17141b45),url("${invitePhoto}")`, backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" } : {}) } as React.CSSProperties}>
+  return <main className="public-page public-page-fullscreen public-page-has-design" style={{ "--event-accent": event.primaryColor, "--event-background": event.backgroundColor, backgroundColor: event.backgroundColor } as React.CSSProperties}>
     <div className="public-wrap">
       {canReturnToEditor && <Link href={`/painel/eventos/${event.id}/editar-convite`} className="public-preview-return-float">&#8592; Voltar &#224; edi&#231;&#227;o</Link>}
       {event.designElements ? <InvitationDesignCanvas event={event} /> : <article className="invite-card public-invitation-card" style={{ backgroundColor: event.backgroundColor, borderColor: `${event.primaryColor}55`, backgroundImage: event.cover ? `linear-gradient(#18231d55,#18231d55),url("${event.cover}")` : undefined, backgroundSize: "cover", backgroundPosition: "center", minHeight: event.cover ? 640 : undefined }}>
