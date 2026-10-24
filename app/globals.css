@@ -525,6 +525,17 @@ td { font-size:14px; }
 .design-global-typography .design-range { margin-top:1px; }
 .design-global-color { display:grid; gap:5px; }
 .design-global-color>button { justify-self:start; padding:3px 0; border:0; background:none; color:#813e58; font:700 13px Arial,sans-serif; text-decoration:underline; cursor:pointer; }
+.color-swatches-field { display:grid; gap:9px; min-width:0; }
+.color-swatches-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; color:#534754; font-size:14px; font-weight:700; }
+.color-swatches-heading code { flex:none; color:#756976; font:600 12px/1.2 ui-monospace,SFMono-Regular,Consolas,monospace; }
+.color-swatches { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; }
+.color-swatch { position:relative; display:grid; place-items:center; width:38px; height:38px; max-width:100%; justify-self:start; overflow:hidden; border:1px solid #d9cbd2; border-radius:11px; box-shadow:0 1px 3px #49313a18; cursor:pointer; transition:transform .15s ease,box-shadow .15s ease,outline-color .15s ease; }
+.color-swatch:hover { transform:translateY(-2px); box-shadow:0 3px 8px #49313a25; }
+.color-swatch[aria-pressed="true"],.color-swatch-custom.is-selected { outline:3px solid #d68da4; outline-offset:2px; }
+.color-swatch-check { display:grid; place-items:center; width:21px; height:21px; border-radius:50%; background:#392d35d9; color:#fff; font:700 14px/1 Arial,sans-serif; text-shadow:0 1px 2px #0008; }
+.color-swatch-custom { background:linear-gradient(135deg,#f6d6e0 0 25%,#fff 25% 50%,#dfd3f2 50% 75%,#fff 75%) !important; color:#674354; font:700 22px/1 Arial,sans-serif; }
+.color-swatch-custom input { position:absolute; inset:0; width:100%; height:100%; padding:0; border:0; opacity:0; cursor:pointer; }
+.invite-color-settings { display:grid; grid-template-columns:minmax(0,1fr); gap:16px; }
 .design-selected-title { display:flex; align-items:center; justify-content:space-between; gap:7px; font-size:15px; }
 .design-selected-title>div { display:flex; gap:4px; }
 .design-icon-button { width:30px; height:30px; border:1px solid #eadfe7; border-radius:8px; background:#fff; color:#71364f; font-size:17px; cursor:pointer; }
