@@ -16,7 +16,7 @@ export default function PublicInvitePage() {
   if (!loaded) return <main className="invite-state">Carregando convite…</main>;
   if (!event || (event.status !== "Publicado" && !isPreview)) return <main className="invite-state"><section className="card invite-state-card"><span className="logo">celebra<span>.</span></span><h1 className="serif">Este convite não está disponível</h1><p className="muted">O link pode estar incorreto ou o convite ainda não foi publicado.</p><Link href="/" className="btn btn-primary">Conhecer o Celebra</Link></section></main>;
   const model = templates.find(t => t.id === event.templateId) || templates[0];
-  return <main className="public-page" style={{ "--event-accent": event.primaryColor, "--event-background": event.backgroundColor } as React.CSSProperties}>
+  return <main className="public-page public-page-fullscreen" style={{ "--event-accent": event.primaryColor, "--event-background": event.backgroundColor } as React.CSSProperties}>
     <div className="public-wrap"><Link href="/" className="logo">celebra<span>.</span></Link>
       {isPreview&&<div className="invite-preview-toolbar"><span>Pr&#233;via do seu convite</span><Link href={`/painel/eventos/${event.id}/editar-convite`} className="btn btn-primary">&#8592; Voltar &#224; edi&#231;&#227;o</Link></div>}
       {event.designElements ? <InvitationDesignCanvas event={event} /> : <article className="invite-card public-invitation-card" style={{ backgroundColor: event.backgroundColor, borderColor: `${event.primaryColor}55`, backgroundImage: event.cover ? `linear-gradient(#18231d55,#18231d55),url("${event.cover}")` : undefined, backgroundSize: "cover", backgroundPosition: "center", minHeight: event.cover ? 640 : undefined }}>
