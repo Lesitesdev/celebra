@@ -627,6 +627,23 @@ td { font-size:14px; }
 @media(max-width:820px) { .design-editor { grid-template-columns:minmax(0,1fr); }.design-inspector { padding:20px; }.design-stage { height:min(700px,145vw); min-height:520px; } }
 @media(max-width:480px) { .design-inspector { padding:16px; }.design-stage { height:580px; min-height:0; }.design-field input:not([type="range"]):not([type="file"]),.design-field select,.design-field textarea { font-size:16px; } }
 
+/* Convite público: arte em tela cheia e informações da plataforma ao final da página. */
+.public-page-has-design { height:auto; min-height:100svh; overflow:visible; }
+.public-page-has-design>.public-wrap { position:relative; width:100%; height:auto; min-height:100svh; padding:0; }
+.public-page-has-design .design-editor.is-readonly { position:absolute; inset:0 0 auto; height:100svh; }
+.public-page-has-design .design-stage-wrap { position:absolute; inset:0; width:100%; height:100%; }
+.public-page-has-design .invite-actions { position:absolute; top:calc(100svh - 142px); right:50%; bottom:auto; transform:translateX(50%); }
+.public-page-has-design .public-invite-footer { position:relative; z-index:12; display:flex; flex-direction:column; align-items:center; gap:6px; margin-top:100svh; padding:14px 12px 20px; background:#f4f5ef; color:#758178; }
+.public-page-has-design .public-invite-footer p { margin:0; font-size:12px; }
+.public-page-has-design .public-invite-footer p a { color:#913c58; font-weight:700; }
+.public-page-has-design .public-preview-return { display:inline-flex; align-items:center; min-height:34px; padding:6px 12px; border:1px solid #e8cdd7; border-radius:999px; background:#fff; color:#913c58; font-size:12px; font-weight:700; }
+.public-page-has-design .public-footer-brand { color:#79364f; font-family:Georgia,serif; font-size:17px; font-weight:700; }
+.public-page-has-design .public-footer-brand span { color:#e5a43c; }
+@media(max-width:600px) {
+  .public-page-has-design .invite-actions { top:calc(100svh - 132px); bottom:auto; }
+  .public-page-has-design .public-invite-footer { gap:7px; padding:12px 10px 18px; }
+}
+
 /* O carrossel passa a ocupar todo o hero-grid. */
 .hero { padding:38px 0 62px; }
 .hero-grid { display:block; }
