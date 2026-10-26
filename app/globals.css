@@ -70,6 +70,12 @@ button { cursor:pointer; }
 .footer { padding:30px 0; background:#f7f8f4; color:#657166; }
 .app-shell { min-height:100vh; background:#f8f9f6; }
 .app-header { height:72px; background:white; border-bottom:1px solid #e8ece5; display:flex; align-items:center; justify-content:space-between; padding:0 28px; }
+.app-header-actions,.account-actions { display:flex; align-items:center; gap:12px; }
+.account-welcome { color:#647268; font-size:13px; white-space:nowrap; }
+.account-welcome strong { color:#304a38; }
+.account-actions .btn,.account-login { padding:8px 14px; font-size:13px; }
+.account-logout { display:inline-flex; align-items:center; gap:6px; }
+.account-actions-placeholder { width:92px; height:36px; }
 .app-body { display:grid; grid-template-columns:230px 1fr; min-height:calc(100vh - 72px); }
 .sidebar { background:white; border-right:1px solid #e8ece5; padding:25px 15px; }
 .side-link { display:flex; padding:12px 14px; border-radius:12px; color:#617065; font-size:14px; font-weight:600; margin:4px 0; }
@@ -134,6 +140,13 @@ th { color:#758178; font-size:11px; text-transform:uppercase; letter-spacing:.08
 .gift-card h2 { margin:0; font-size:22px; }
 .gift-card p { margin:0; line-height:1.5; font-size:13px; }
 .gift-card .btn { margin-top:auto; }
+.guest-export-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:22px 0; }
+.guest-export-actions>strong { margin-right:auto; font-size:14px; }
+.guest-filters select { padding:12px; border:1px solid #dfe5dc; border-radius:12px; background:white; color:var(--ink); }
+.guest-row-actions { display:flex; gap:6px; flex-wrap:wrap; }
+.guest-edit-form { display:grid; grid-template-columns:repeat(3,minmax(150px,1fr)); gap:8px 14px; padding:10px; }
+.guest-edit-form .field { margin:0; }
+.guest-edit-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; grid-column:1/-1; }
 .choice { display:flex; align-items:center; gap:8px; font-weight:400!important; }
 .choice input { width:auto!important; }
 .form-error { color:#b42318; font-size:13px; }
@@ -188,6 +201,8 @@ th { color:#758178; font-size:11px; text-transform:uppercase; letter-spacing:.08
  .invite-art { min-height:370px; }
  .steps-grid,.models-grid,.stats-grid { grid-template-columns:1fr; }
  .app-header { padding:0 16px; }
+ .app-header-actions { gap:8px; }
+ .account-welcome { white-space:normal; text-align:right; }
  .app-body { grid-template-columns:1fr; }
  .sidebar { border-right:0; border-bottom:1px solid #e8ece5; padding:8px 12px; display:flex; overflow-x:auto; gap:4px; }
  .side-link { white-space:nowrap; padding:10px; }
@@ -205,6 +220,20 @@ th { color:#758178; font-size:11px; text-transform:uppercase; letter-spacing:.08
  .auth-story-foot { display:none; }
  .auth-main { padding:30px 22px 45px; }
  .auth-heading { margin-top:26px; }
+}
+@media(max-width:600px) {
+ .site-header nav { gap:10px!important; font-size:12px; }
+ .account-actions { gap:7px; }
+ .account-welcome { max-width:110px; }
+ .account-actions .btn,.account-login { padding:7px 10px; }
+ .account-dashboard { display:none!important; }
+ .app-header-actions { gap:6px; }
+ .app-header-site-link { padding:7px 9px!important; font-size:12px; }
+}
+@media(max-width:700px) {
+ .guest-edit-form { grid-template-columns:1fr; }
+ .guest-edit-actions { grid-column:auto; }
+ .guest-export-actions>strong { width:100%; }
 }
 
 /* Paleta festiva: coral, ameixa, lavanda e dourado em superfícies suaves. */
@@ -676,6 +705,43 @@ td { font-size:14px; }
 @media(max-width:800px) { .hero { padding:24px 0 40px; }.hero-carousel { height:680px; min-height:560px; border-radius:24px; }.hero-carousel-shade { background:linear-gradient(90deg,#211722b8,#271b2770 70%,#25212b2b),linear-gradient(0deg,#1e1725ee 0%,#1e1725a8 48%,transparent 100%); }.hero-carousel-topline { top:19px; left:22px; right:22px; font-size:9px; }.hero-carousel-caption { left:25px; right:25px; bottom:72px; width:auto; }.hero-carousel-caption>h1 { font-size:clamp(39px,9vw,54px); }.hero-carousel-model h2 { font-size:19px; }.hero-carousel-model p { font-size:13px; }.hero-carousel-arrow.previous { left:13px; }.hero-carousel-arrow.next { right:13px; } }
 @media(max-width:480px) { .hero { padding-top:16px; }.hero-carousel { height:650px; min-height:540px; border-radius:20px; }.hero-carousel-topline { left:17px; right:17px; }.hero-carousel-caption { left:20px; right:20px; bottom:70px; }.hero-carousel-caption>h1 { margin:9px 0 14px; font-size:39px; }.hero-carousel-kicker { font-size:9px; letter-spacing:.11em; }.hero-carousel-symbol { width:42px; height:42px; border-radius:12px; }.hero-carousel-model h2 { font-size:17px; }.hero-carousel-model p { font-size:12px; }.hero-carousel-actions { display:grid; grid-template-columns:1fr; }.hero-carousel-actions .btn { justify-content:center; }.hero-carousel-points { gap:9px 15px; font-size:11px; }.hero-carousel-arrow { top:70px; transform:none; width:36px; height:36px; } }
 @media(prefers-reduced-motion:reduce) { .hero-carousel-image { animation:none; } }
+
+.hero-carousel-caption>h1 { max-width:700px; font-size:clamp(36px,4.7vw,58px); line-height:1.15; text-wrap:balance; }
+.hero-carousel-model { max-width:620px; }
+.hero-carousel-model p { max-width:500px; line-height:1.55; }
+.steps-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+.step-card-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.step-card-heading .step-num { margin:0; }
+.step-icon,.benefit-icon { display:grid; place-items:center; flex:none; width:42px; height:42px; border-radius:14px; background:#f6d9df; color:#953d5b; }
+.steps-grid .step-card:nth-child(2) .step-icon { background:#e9dcf5; color:#694687; }
+.steps-grid .step-card:nth-child(3) .step-icon { background:#f8e6b9; color:#8b641c; }
+.steps-grid .step-card:nth-child(4) { border-color:#d9e8dd; background:linear-gradient(145deg,#fff,#eff7f0); }
+.steps-grid .step-card:nth-child(4) .step-num,.steps-grid .step-card:nth-child(4) .step-icon { background:#dceee0; color:#42664c; }
+.benefits-section { background:linear-gradient(135deg,#fffaf3 0%,#f8f2f7 100%); }
+.benefits-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+.benefit-card { padding:22px; }
+.benefit-icon { background:#f6d9df; color:#953d5b; }
+.benefit-card:nth-child(2) .benefit-icon { background:#e9dcf5; color:#694687; }
+.benefit-card:nth-child(3) .benefit-icon { background:#f8e6b9; color:#8b641c; }
+.benefit-card:nth-child(4) .benefit-icon { background:#dceee0; color:#42664c; }
+.benefit-card h3 { margin:14px 0 8px; font-size:17px; }
+.benefit-card p { margin:0; font-size:14px; line-height:1.65; }
+@media(max-width:1100px) {
+ .steps-grid,.benefits-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:800px) {
+ .hero-carousel-caption>h1 { font-size:clamp(36px,7vw,50px); }
+}
+@media(max-width:560px) {
+ .steps-grid,.benefits-grid { grid-template-columns:1fr; }
+ .hero-carousel-caption>h1 { font-size:clamp(32px,8.5vw,39px); line-height:1.15; }
+ .hero-carousel-model { align-items:flex-start; }
+ .hero-carousel-model p { font-size:12px; line-height:1.45; }
+ .step-card { padding:22px; }
+}
+@media(max-width:360px) {
+ .site-header nav>a { display:none; }
+}
 
 /* Acao principal para incluir um presente personalizado. */
 .manual-gift { margin-top:18px; padding:0; overflow:hidden; border:1px solid #e8c5d3; border-radius:16px; background:linear-gradient(135deg,#fff7f1,#fff0f5 58%,#f8f1ff); box-shadow:0 7px 20px #8d405516; transition:border-color .18s,box-shadow .18s,transform .18s; }

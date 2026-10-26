@@ -28,7 +28,7 @@ npm run dev
 6. Clique em **Publicar convite**.
 7. Use **Visualizar** para abrir o convite público.
 8. Envie uma confirmação de presença de teste.
-9. Volte ao painel do evento e abra **Gerenciar convidados**.
+9. Volte ao painel do evento e abra **Gerenciar convidados** para consultar, editar ou excluir respostas e baixar a lista em Word ou PDF.
 
 Também existem convites de exemplo publicados:
 - `/convite/marina-e-rafael`
@@ -42,12 +42,15 @@ npm start
 ```
 
 ## Limitações desta versão
-- Não possui backend, banco de dados ou autenticação real.
-- Os dados ficam no `localStorage` do navegador; não sincronizam entre dispositivos.
+- O frontend ainda não está integrado ao backend para convites e confirmações; o cadastro da API não sincroniza os dados da aplicação.
+- Convites e respostas ficam no `localStorage` do navegador; não sincronizam entre dispositivos. Para acompanhar respostas de convidados em outros aparelhos, é necessário integrar o fluxo de RSVP a um backend.
 - A publicação é apenas demonstrativa e não cria um link hospedado para outros usuários.
 - Não há envio automático de WhatsApp ou e-mail.
+- A lista de presentes é apenas uma sugestão; não há checkout, compra ou confirmação de pagamento.
 - Imagens são composições feitas com CSS; não há upload de imagens.
 - O armazenamento local não é adequado para uso comercial com dados reais.
+
+No painel de convidados, é possível editar ou excluir registros e exportar a lista completa em `.docx` e `.pdf`. As exportações incluem os dados disponíveis no navegador atual.
 
 ## Próximos passos
 1. Validar o fluxo e a identidade visual com usuários.

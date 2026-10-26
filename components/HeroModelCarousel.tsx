@@ -4,10 +4,38 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { templates } from "@/lib/data";
 
+const heroCopy: Record<string, { title: string; description: string; action: string }> = {
+  Casamento: {
+    title: "Seu grande dia merece um convite inesquecível.",
+    description: "Um convite elegante, personalizado com a história de vocês e pronto para compartilhar com quem faz parte desse momento.",
+    action: "Criar meu convite",
+  },
+  Aniversário: {
+    title: "Uma comemoração especial começa pelo convite.",
+    description: "Escolha seu estilo, adicione suas fotos e transforme seu aniversário em um convite cheio de personalidade.",
+    action: "Personalizar meu convite",
+  },
+  Formatura: {
+    title: "Você conquistou muito. Celebre à altura.",
+    description: "Compartilhe sua conquista com um convite digital moderno, personalizado e fácil de enviar.",
+    action: "Encontrar meu modelo",
+  },
+  "Chá de bebê": {
+    title: "Um momento cheio de amor merece ser compartilhado.",
+    description: "Crie um convite delicado, organize as confirmações e compartilhe sua alegria com a família e os amigos.",
+    action: "Criar meu convite",
+  },
+};
+
 export default function HeroModelCarousel() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const item = templates[active];
+  const copy = heroCopy[item.category] || {
+    title: "Toda celebração merece um convite especial.",
+    description: item.description,
+    action: "Criar meu convite",
+  };
   const move = (step: number) => setActive(i => (i + step + templates.length) % templates.length);
   useEffect(() => {
     if (paused) return;
@@ -20,9 +48,9 @@ export default function HeroModelCarousel() {
     <div className="hero-carousel-topline"><span>CELEBRA <i>Â·</i> CONVITES DIGITAIS</span><span>{String(active + 1).padStart(2, "0")} <i>/</i> {String(templates.length).padStart(2, "0")}</span></div>
     <div className="hero-carousel-caption" aria-live="polite">
       <span className="hero-carousel-kicker">{item.category} <b>·</b> INSPIRAÇÃO PARA CELEBRAR</span>
-      <h1 className="serif">Seu evento merece<br/>um convite <em>especial.</em></h1>
-      <div className="hero-carousel-model"><span className="hero-carousel-symbol">{item.symbol}</span><div><h2 className="serif">{item.name}</h2><p>{item.description}</p></div></div>
-      <div className="hero-carousel-actions"><Link className="btn btn-primary" href="/entrar">Criar meu convite <span aria-hidden="true">&#8594;</span></Link><Link className="btn btn-light" href={`/painel/eventos/novo?modelo=${encodeURIComponent(item.id)}`}>Usar este modelo</Link></div>
+      <h1 className="serif">{copy.title}</h1>
+      <div className="hero-carousel-model"><span className="hero-carousel-symbol">{item.symbol}</span><div><h2 className="serif">{item.name}</h2><p>{copy.description}</p></div></div>
+      <div className="hero-carousel-actions"><Link className="btn btn-primary" href="/entrar">{copy.action} <span aria-hidden="true">&#8594;</span></Link><Link className="btn btn-light" href={`/painel/eventos/novo?modelo=${encodeURIComponent(item.id)}`}>Usar este modelo</Link></div>
       <div className="hero-carousel-points"><span>&#10003; F&#225;cil de personalizar</span><span>&#10003; Compartilhe por link</span></div>
     </div>
     <button className="hero-carousel-arrow previous" onClick={() => move(-1)} aria-label="Modelo anterior"><ChevronLeft /></button>
